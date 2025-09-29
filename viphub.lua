@@ -122,3 +122,8 @@ ExtraTab:CreateSlider({
         end
     end,
 })
+
+local atinLoader = loadstring(game:HttpGet("https://raw.githubusercontent.com/raffipedia/base-hub/main/Mt-Atin.lua"))
+if atinLoader then
+    atinLoader()(Window)
+end
