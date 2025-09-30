@@ -123,6 +123,11 @@ ExtraTab:CreateSlider({
     end,
 })
 
+local flyLoader = loadstring(game:HttpGet("https://raw.githubusercontent.com/raffipedia/base-hub/main/Fly.lua"))
+if flyLoader then
+    flyLoader()(Window)
+end
+
 local atinLoader = loadstring(game:HttpGet("https://raw.githubusercontent.com/raffipedia/base-hub/main/Mt-Atin.lua"))
 if atinLoader then
     atinLoader()(Window)
