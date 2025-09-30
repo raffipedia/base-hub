@@ -1,69 +1,78 @@
-return function(Window)
-    -- Ambil tab ExtraTools yang sudah ada
-    local ExtraTab = Window:CreateTab("Extra Tools", 4483362458)
-
-    ExtraTab:CreateSection("Fly System")
-
-    -- Variabel Fly
+return function(ExtraTab)
     local flying = false
     local speed = 50
     local height = 0
-    local player = game.Players.LocalPlayer
-    local uis = game:GetService("UserInputService")
-    local runService = game:GetService("RunService")
+    local flyConnection
+    local minimized = false
 
-    -- Tombol untuk ON/OFF Fly
-    ExtraTab:CreateToggle({
+    -- Section Fly
+    ExtraTab:CreateSection("Fly Controls")
+
+    -- Toggle Fly
+    local flyToggle = ExtraTab:CreateToggle({
         Name = "Fly Mode",
         CurrentValue = false,
         Flag = "FlyToggle",
         Callback = function(Value)
             flying = Value
-        end,
-    })
-
-    -- Tombol + dan - untuk speed
-    ExtraTab:CreateButton({
-        Name = "+ Speed",
-        Callback = function()
-            if speed < 100 then
-                speed = speed + 5
-                Rayfield:Notify({Title = "Fly Speed", Content = "Speed: " .. speed, Duration = 2})
+            if flying then
+                local player = game.Players.LocalPlayer
+                local hrp = player.Character:WaitForChild("HumanoidRootPart")
+                flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                    if flying and hrp then
+                        hrp.Velocity = Vector3.new(0, height, 0) + hrp.CFrame.LookVector * speed
+                    end
+                end)
+            else
+                if flyConnection then flyConnection:Disconnect() end
             end
         end,
     })
 
-    ExtraTab:CreateButton({
-        Name = "- Speed",
+    -- Naik (UP)
+    local upButton = ExtraTab:CreateButton({
+        Name = "UP",
         Callback = function()
-            if speed > 5 then
-                speed = speed - 5
-                Rayfield:Notify({Title = "Fly Speed", Content = "Speed: " .. speed, Duration = 2})
-            end
+            height = 50
         end,
     })
 
-    -- Tombol naik turun
-    ExtraTab:CreateButton({
-        Name = "Naik (Up)",
+    -- Turun (DOWN)
+    local downButton = ExtraTab:CreateButton({
+        Name = "DOWN",
         Callback = function()
-            height = height + 10
+            height = -50
         end,
     })
 
-    ExtraTab:CreateButton({
-        Name = "Turun (Down)",
+    -- Speed + 
+    local plusButton = ExtraTab:CreateButton({
+        Name = "Increase Speed (+)",
         Callback = function()
-            height = height - 10
+            speed = math.clamp(speed + 10, 1, 100)
+            Rayfield:Notify({Title="Speed Changed", Content="Speed sekarang: "..speed, Duration=2})
         end,
     })
 
-    -- Sistem Fly
-    runService.RenderStepped:Connect(function()
-        if flying and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local hrp = player.Character.HumanoidRootPart
-            local moveDir = player.Character.Humanoid.MoveDirection
-            hrp.Velocity = Vector3.new(moveDir.X * speed, height, moveDir.Z * speed)
-        end
-    end)
+    -- Speed -
+    local minusButton = ExtraTab:CreateButton({
+        Name = "Decrease Speed (-)",
+        Callback = function()
+            speed = math.clamp(speed - 10, 1, 100)
+            Rayfield:Notify({Title="Speed Changed", Content="Speed sekarang: "..speed, Duration=2})
+        end,
+    })
+
+    -- Minimize Button
+    ExtraTab:CreateButton({
+        Name = "Minimize Fly Controls",
+        Callback = function()
+            minimized = not minimized
+            flyToggle.Visible = not minimized
+            upButton.Visible = not minimized
+            downButton.Visible = not minimized
+            plusButton.Visible = not minimized
+            minusButton.Visible = not minimized
+        end,
+    })
 end
